@@ -131,6 +131,9 @@ def main():
     log("decision:", go, "-", why)
     if not go:
         return 0
+    if MODE != "dry-run" and not os.environ.get("META_TOKEN"):
+        log("::warning::Falta el secreto META_TOKEN: no se publica hasta que se agregue en Settings > Secrets.")
+        return 0
     idx = state["next_index"] % len(POSTS)
     p = POSTS[idx]
     log("post:", p["id"], p["lang"], p["template"], "-", p["headline"])
