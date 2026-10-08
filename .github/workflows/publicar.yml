@@ -1,0 +1,43 @@
+name: Publicar en Facebook e Instagram
+
+on:
+  schedule:
+    # 5 a.m. en Houston: 10:00 UTC en horario de verano (CDT) y 11:00 UTC en invierno (CST).
+    # run.py publica solo si en Houston son las 5 a.m. y pasaron 3 días desde la última publicación.
+    - cron: "0 10 * * *"
+    - cron: "0 11 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run genera la imagen sin publicar; publish publica ahora"
+        type: choice
+        default: dry-run
+        options: [dry-run, publish]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar dependencias
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Publicar
+        env:
+          META_TOKEN: ${{ secrets.META_TOKEN }}
+          PAGE_ID: ${{ vars.PAGE_ID }}
+          GRAPH_VERSION: ${{ vars.GRAPH_VERSION }}
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'auto' }}
+        run: python run.py
