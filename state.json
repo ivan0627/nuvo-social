@@ -1,5 +1,12 @@
 {
-  "next_index": 0,
-  "last_published": null,
-  "history": []
+  "next_index": 1,
+  "last_published": "2026-10-08T13:50:46-05:00",
+  "history": [
+    {
+      "id": "p001",
+      "at": "2026-10-08T13:50:46-05:00",
+      "facebook": "1362020253662270_122094558093512953",
+      "instagram": "18109703216235147"
+    }
+  ]
 }
