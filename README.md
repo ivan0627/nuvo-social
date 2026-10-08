@@ -12,7 +12,7 @@ Cada 3 días, a las 5 a.m. hora de Houston, GitHub Actions toma la siguiente pub
 ## Configuración (una sola vez)
 
 1. En **Settings → Secrets and variables → Actions → New repository secret**, crea `META_TOKEN` con el token de la página (o del usuario del sistema) con los permisos `pages_manage_posts`, `pages_read_engagement`, `instagram_basic` e `instagram_content_publish`.
-2. Opcional, en **Variables**: `PAGE_ID` (por defecto 61595388592033) y `GRAPH_VERSION` (por defecto v25.0).
+2. Opcional, en **Variables**: `PAGE_ID` (por defecto 1362020253662270, el id de la página Nuvo Group en la API; el número de profile.php no sirve) y `GRAPH_VERSION` (por defecto v25.0).
 
 ## Probar o publicar a mano
 

@@ -4,7 +4,7 @@ to the Facebook Page and the connected Instagram account through the Meta Graph 
 Environment:
   META_TOKEN      Page access token or system-user token with pages_manage_posts,
                   pages_read_engagement, instagram_basic, instagram_content_publish (GitHub secret)
-  PAGE_ID         Facebook Page id (default 61595388592033)
+  PAGE_ID         Facebook Page id for the Graph API (default 1362020253662270)
   GRAPH_VERSION   default v25.0
   MODE            "auto" (scheduled), "dry-run" (render only) or "publish" (publish now)
   EVERY_DAYS      default 3
@@ -19,7 +19,7 @@ HERE = Path(__file__).resolve().parent
 STATE = HERE / "state.json"
 POSTS = json.loads((HERE / "posts.json").read_text())["posts"]
 TZ = ZoneInfo("America/Chicago")
-PAGE_ID = os.environ.get("PAGE_ID") or "61595388592033"
+PAGE_ID = os.environ.get("PAGE_ID") or "1362020253662270"  # Graph API id of the Nuvo Group page
 VER = os.environ.get("GRAPH_VERSION") or "v25.0"
 MODE = (os.environ.get("MODE") or "auto").strip()
 EVERY = int(os.environ.get("EVERY_DAYS") or 3)
@@ -97,14 +97,29 @@ def caption_for(p):
     return p["caption"].strip() + ("\n\n" + tags if tags else "")
 
 
+def page_info(token):
+    """Return (page_id, info) with the page token and linked Instagram account."""
+    fields = "id,name,access_token,instagram_business_account"
+    try:
+        return PAGE_ID, api("GET", PAGE_ID, {"fields": fields, "access_token": token})
+    except RuntimeError as e:
+        log("page lookup by id failed, trying me/accounts:", str(e)[:160])
+    pages = api("GET", "me/accounts", {"fields": fields, "access_token": token}).get("data", [])
+    if not pages:
+        raise RuntimeError("The token has no Facebook Page assigned (check the system user's assets)")
+    page = next((x for x in pages if x["id"] == PAGE_ID), None) or next((x for x in pages if "nuvo" in x.get("name", "").lower()), pages[0])
+    return page["id"], page
+
+
 def publish(p, image_url):
     token = os.environ["META_TOKEN"]
-    info = api("GET", PAGE_ID, {"fields": "access_token,instagram_business_account", "access_token": token})
+    page_id, info = page_info(token)
+    log("page:", page_id, info.get("name", ""))
     page_token = info.get("access_token") or token
     ig = (info.get("instagram_business_account") or {}).get("id")
     cap = caption_for(p)
     out = {}
-    fb = api("POST", f"{PAGE_ID}/photos", {"url": image_url, "caption": cap, "published": "true", "access_token": page_token})
+    fb = api("POST", f"{page_id}/photos", {"url": image_url, "caption": cap, "published": "true", "access_token": page_token})
     out["facebook"] = fb.get("post_id") or fb.get("id")
     log("Facebook OK", out["facebook"])
     if ig:
