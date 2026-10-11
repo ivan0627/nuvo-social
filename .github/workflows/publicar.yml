@@ -2,10 +2,13 @@ name: Publicar en Facebook e Instagram
 
 on:
   schedule:
-    # 5 a.m. en Houston: 10:00 UTC en horario de verano (CDT) y 11:00 UTC en invierno (CST).
-    # run.py publica solo si en Houston son las 5 a.m. y pasaron 3 días desde la última publicación.
-    - cron: "0 10 * * *"
-    - cron: "0 11 * * *"
+    # Objetivo: 5 a.m. en Houston (10:00 UTC en verano, 11:00 UTC en invierno). GitHub suele arrancar
+    # los programados con horas de retraso, así que hay varios intentos en minutos poco congestionados.
+    # run.py publica en el primer intento desde las 5 a.m. del día que toca (cada 3 días) y los demás se saltan.
+    - cron: "17 10 * * *"
+    - cron: "17 11 * * *"
+    - cron: "41 13 * * *"
+    - cron: "41 16 * * *"
   workflow_dispatch:
     inputs:
       mode:
@@ -23,11 +26,11 @@ concurrency:
 
 jobs:
   publicar:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Instalar dependencias
