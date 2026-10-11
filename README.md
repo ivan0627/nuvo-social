@@ -7,7 +7,7 @@ Cada 3 días, a las 5 a.m. hora de Houston, GitHub Actions toma la siguiente pub
 - `posts.json`: el banco de publicaciones (40, en español e inglés). Cada una trae plantilla, titular, texto, hashtags y, si lleva foto, el id de una foto de Pexels.
 - `render.py`: dibuja la imagen con Playwright y la guarda en `out/`.
 - `run.py`: decide si toca publicar, sube la imagen al repo (Instagram necesita una URL pública), publica en Facebook e Instagram y guarda el avance en `state.json`.
-- `.github/workflows/publicar.yml`: corre todos los días a las 10:00 y 11:00 UTC. `run.py` solo publica si en Houston son las 5 a.m. (o hasta las 6:59 si GitHub arranca tarde) y ya pasaron 3 días.
+- `.github/workflows/publicar.yml`: intenta correr 4 veces al día (10:17, 11:17, 13:41 y 16:41 UTC). GitHub suele arrancar los programados con horas de retraso, así que `run.py` publica en el primer intento desde las 5 a.m. de Houston del día que toca (cada 3 días) y los demás se saltan.
 
 ## Configuración (una sola vez)
 

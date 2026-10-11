@@ -81,9 +81,10 @@ def should_run(state):
     now = datetime.now(TZ)
     if MODE in ("dry-run", "publish"):
         return True, f"manual {MODE}"
-    # GitHub can start scheduled runs late, so accept 5:00-6:59; the 3-day rule below prevents doubles.
-    if not 5 <= now.hour < 7:
-        return False, f"not 5 a.m. in Houston (it's {now:%H:%M})"
+    # GitHub often starts scheduled runs hours late, so publish on the first run at or after 5 a.m.
+    # (Houston) on the due day; the 3-day rule below prevents a second post the same day.
+    if now.hour < 5:
+        return False, f"before 5 a.m. in Houston (it's {now:%H:%M})"
     last = state.get("last_published")
     if last:
         last_d = datetime.fromisoformat(last).astimezone(TZ).date()
